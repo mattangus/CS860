@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
 project (cs860 CXX)
-add_executable(cs860 main.cpp)
+include_directories(${cs860_SOURCE_DIR}/include)
+add_executable(cs860 src/main.cpp src/firstMorph.cpp src/sequence.cpp)
 add_definitions(-std=c++11)
