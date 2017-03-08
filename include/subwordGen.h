@@ -13,6 +13,6 @@ class subwordGen
 public:
 	subwordGen(morphism morph, int start);
 	~subwordGen();
-	map<vector<int>, bool> getSubwords(int n);
+	vector<vector<int> > getSubwords(int n);
 	void print();
 };

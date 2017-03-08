@@ -18,7 +18,7 @@ subwordGen::~subwordGen()
 	
 }
 
-map<vector<int>, bool> subwordGen::getSubwords(int n)
+vector<vector<int> > subwordGen::getSubwords(int n)
 {
 	map<vector<int>, bool> expansions = curExpansion;
 	while(expansions.begin()->first.size() <= n)
@@ -40,7 +40,11 @@ map<vector<int>, bool> subwordGen::getSubwords(int n)
 		}
 	}
 	curExpansion = nextExpansion;
-	return curExpansion;
+	vector<vector<int> > ret;
+	ret.reserve(curExpansion.size());
+	for(map<vector<int>, bool>::iterator it=curExpansion.begin(); it != curExpansion.end(); ++it)
+		ret.push_back(it->first);
+	return ret;
 }
 
 void subwordGen::print(map<vector<int>, bool> &list)
