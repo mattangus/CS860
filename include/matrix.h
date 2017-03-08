@@ -13,12 +13,12 @@ public:
 	matrix(size_t rows, size_t cols) : rows(rows), cols(cols), data_vec( rows * cols )
 	{
 		if(rows != cols)
-			throw std::runtime_error("rows != cols");
+			throw std::runtime_error("rows != cols, only square supported");
 	}
 	matrix(T* data, size_t rows, size_t cols) : rows(rows), cols(cols), data_vec(data, data + sizeof(data) / sizeof(data[0]))
 	{
 		if(rows != cols)
-			throw std::runtime_error("rows != cols");
+			throw std::runtime_error("rows != cols, only square supported");
 	}
 	
 	T& operator ()( size_t row, size_t col ) {
@@ -82,4 +82,31 @@ public:
 			prod *= L(i,i)*U(i,i);
 		return prod;
 	}
+
+	static matrix<T> hankel(vector<int> list)
+	{
+		int n = list.size();
+		int t = (n+1)/2;
+		if(2*t-1 != n)
+			throw std::runtime_error("can't create square hankel matrix");
+		matrix<T> ret(t,t);
+		for(int i = 0; i < t; i++)
+		{
+			for(int j = 0; j < t; j++)
+			{
+				ret(i,j) = list[i+j];
+			}
+		}
+		return ret;
+	}
+
 };
+
+
+
+
+
+
+
+
+

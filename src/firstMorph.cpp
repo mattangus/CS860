@@ -5,6 +5,7 @@ firstMorph::firstMorph()
 	alphabetMin = 1;
 	alphabetMax = 5;
 	alphabetShift = 1;
+	expandFactor = 2;
 
 	vector<int> one;
 	one.push_back(1);
