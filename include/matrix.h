@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 
@@ -33,38 +34,23 @@ public:
 		return data_vec[ row * cols + col ];
 	}
 
-	void print()
+	void swap(matrix<T> &other)
 	{
-		for (int i=0; i<rows; i++)
-		{
-			for (int j=0; j<cols; j++)
-			{
-				cout << (*this)(i,j) << " ";
-			}
-			cout << endl;
-		}
-		cout << endl;
+		std::swap(rows,other.rows);
+		std::swap(cols,other.cols);
+		std::swap(data_vec,other.data_vec);
 	}
-
-	matrix<T>& operator=(const matrix<T> &other)
-	{
-		if(&other == this)
-			return *this;
-		
-		rows = other.rows;
-		cols = other.cols;
-		data_vec = vector<T>(other.data_vec);
-		return *this;
-	}
-
+	
 	T det()
 	{
-		matrix<T> A = *this;
-		matrix<T> B = condense(A);
-		matrix<T> C(1,1);
+		matrix<T> A(*this);
+		matrix<T> B(A.rows,A.cols);
+		condense(A,B);
+		matrix<T> C(A.rows,A.cols);
+		matrix<T> temp(A.rows,A.cols);
 		while(A.rows >= 3)
 		{
-			C = condense(B);
+			condense(B,C);
 			//divide
 			for(int i = 0; i < C.rows; i++)
 			{
@@ -75,15 +61,18 @@ public:
 					C(i,j) /= A(i+1,j+1);
 				}
 			}
-			A = B;
-			B = C;
+			temp.swap(A);
+			A.swap(B);
+			B.swap(C);
+			C.swap(temp);
 		}
 		return C(0,0);
 	}
 
-	matrix<T> condense(matrix<T> &A)
+	void condense(matrix<T> &A, matrix<T> &B)
 	{
-		matrix<T> B(A.rows-1,A.cols-1);
+		B.rows = A.rows-1;
+		B.cols = A.cols-1;
 		for(int i = 0; i < A.rows-1; i++)
 		{
 			for(int j = 0; j < A.cols-1; j++)
@@ -91,97 +80,6 @@ public:
 				B(i,j) = A(i,j)*A(i+1,j+1) - A(i,j+1)*A(i+1,j);
 			}
 		}
-		return B;
-	}
-	
-	//in place is faster
-	/*#define IDX(i,j) (size*(i) + (j))
-	T det3()
-	{
-		//decompose in place using openmpi
-		T* matrix = new T[rows*cols];
-		memcpy(matrix,data_vec,sizeof(T)*rows*cols);
-		int size = rows;
-		// in situ LU decomposition 
-		int k;
-
-		//LU-decomposition based on Gaussian Elimination
-		// - Arranged so that the multiplier doesn't have to be computed multiple times
-		for(k = 0; k < size-1; k++)
-		{ //iterate over rows/columns for elimination
-			int row;
-			// The "multiplier" is the factor by which a row is multiplied when
-			//  being subtracted from another row.
-			//#pragma omp parallel for private(row) shared(matrix)
-			for(row = k + 1; row < size; row++)
-			{
-				int col;
-
-				// the multiplier only depends on (k,row),
-				// it is invariant with respect to col
-				T factor = matrix[IDX(row,k)]/matrix[IDX(k,k)];
-
-				//Eliminate entries in sub matrix (subtract rows)
-				for(col = k + 1; col < size; col++){ //column
-				matrix[IDX(row,col)] = matrix[IDX(row,col)] - factor*matrix[IDX(k,col)];
-			}
-
-			matrix[IDX(row,k)] = factor;
-			}
-		}
-		
-		T prod = 1;
-
-		for(int i = 0; i < rows; i++)
-			prod *= matrix[IDX(i,i)];
-		
-		delete [] matrix;
-		
-		return prod;
-	}*/
-
-	void decompose(matrix<T> &L, matrix<T> &U) {
-		register int i, j, k;
-		T sum;
-
-		for (i = 0; i < rows; i++) {
-			U(i,i) = 1;
-		}
-
-		for (j = 0; j < rows; j++) {
-			for (i = j; i < rows; i++) {
-				sum = 0;
-				for (k = 0; k < j; k++) {
-					sum = sum + L(i,k) * U(k,j);	
-				}
-				L(i,j) = (*this)(i,j) - sum;
-			}
-
-			for (i = j; i < rows; i++) {
-				sum = 0;
-				for(k = 0; k < j; k++) {
-					sum = sum + L(j,k) * U(k,i);
-				}
-				if (L(j,j) == 0) {
-					cout << "det(L) close to 0!" << endl << "Can't divide by 0..." << endl;
-					exit(EXIT_FAILURE);
-				}
-				U(j,i) = ((*this)(j,i) - sum) / L(j,j);
-			}
-		}
-	}
-	
-	T det2()
-	{
-		matrix<T> L(rows,cols);
-		matrix<T> U(rows,cols);
-		this->decompose(L,U);
-		
-		T prod = 1;
-
-		for(int i = 0; i < rows; i++)
-			prod *= L(i,i)*U(i,i);
-		return prod;
 	}
 
 	static matrix<T> hankel(vector<int> list)
@@ -201,6 +99,18 @@ public:
 		return ret;
 	}
 
+	void print()
+	{
+		for (int i=0; i<rows; i++)
+		{
+			for (int j=0; j<cols; j++)
+			{
+				cout << (*this)(i,j) << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
 };
 
 
