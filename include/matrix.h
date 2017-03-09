@@ -8,20 +8,24 @@ using namespace std;
 template <typename T>
 class matrix {
 private:
-	T* data_vec;
+	vector<T> data_vec;
 public:
-	size_t const rows;
-	size_t const cols;
-	matrix(size_t rows, size_t cols) : rows(rows), cols(cols)
+	size_t rows;
+	size_t cols;
+	matrix(size_t rows, size_t cols) : rows(rows), cols(cols), data_vec(rows*cols)
 	{
 		if(rows != cols)
 			throw std::runtime_error("rows != cols, only square supported");
-		data_vec = new T[rows*cols];
+		if(rows <= 0 || cols <= 0)
+			throw runtime_error("must have positive dimensions");
+	}
+
+	matrix(const matrix &other) : rows(other.rows), cols(other.cols), data_vec(other.data_vec)
+	{
 	}
 
 	~matrix()
 	{
-		delete [] data_vec;
 	}
 
 	T& operator ()( size_t row, size_t col ) {
@@ -41,15 +45,64 @@ public:
 		}
 		cout << endl;
 	}
-	//in place is faster
-	#define IDX(i,j) (size*(i) + (j))
+
+	matrix<T>& operator=(const matrix<T> &other)
+	{
+		if(&other == this)
+			return *this;
+		
+		rows = other.rows;
+		cols = other.cols;
+		data_vec = vector<T>(other.data_vec);
+		return *this;
+	}
+
 	T det()
+	{
+		matrix<T> A = *this;
+		matrix<T> B = condense(A);
+		matrix<T> C(1,1);
+		while(A.rows >= 3)
+		{
+			C = condense(B);
+			//divide
+			for(int i = 0; i < C.rows; i++)
+			{
+				for(int j = 0; j < C.cols; j++)
+				{
+					if(A(i+1,j+1) == 0)
+						cout << "divide by zero " << this->rows << ":" << A.rows << endl;
+					C(i,j) /= A(i+1,j+1);
+				}
+			}
+			A = B;
+			B = C;
+		}
+		return C(0,0);
+	}
+
+	matrix<T> condense(matrix<T> &A)
+	{
+		matrix<T> B(A.rows-1,A.cols-1);
+		for(int i = 0; i < A.rows-1; i++)
+		{
+			for(int j = 0; j < A.cols-1; j++)
+			{
+				B(i,j) = A(i,j)*A(i+1,j+1) - A(i,j+1)*A(i+1,j);
+			}
+		}
+		return B;
+	}
+	
+	//in place is faster
+	/*#define IDX(i,j) (size*(i) + (j))
+	T det3()
 	{
 		//decompose in place using openmpi
 		T* matrix = new T[rows*cols];
 		memcpy(matrix,data_vec,sizeof(T)*rows*cols);
 		int size = rows;
-		/* in situ LU decomposition */
+		// in situ LU decomposition 
 		int k;
 
 		//LU-decomposition based on Gaussian Elimination
@@ -85,7 +138,7 @@ public:
 		delete [] matrix;
 		
 		return prod;
-	}
+	}*/
 
 	void decompose(matrix<T> &L, matrix<T> &U) {
 		register int i, j, k;

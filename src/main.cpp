@@ -1,5 +1,5 @@
 #include <iostream>
-#include <boost/rational.hpp>
+#include <boost/multiprecision/gmp.hpp>
 #include <string>
 #include <map>
 #include <fstream>
@@ -13,14 +13,16 @@
 
 using namespace std;
 
-typedef boost::rational<int> rational;
+typedef boost::multiprecision::mpz_int matType;
 
 void logCheckpoint(int t, string file);
 void testDet();
+void testLarge();
 
 int main(int argc, const char** argv)
 {
 	//testDet();
+	//testLarge();
 	
 	ArgumentParser parser;
 
@@ -65,8 +67,8 @@ int main(int argc, const char** argv)
 		#pragma omp parallel for
 		for(int i = 0; i < subwords.size(); i++)
 		{
-			matrix<rational> mat = matrix<rational>::hankel(subwords[i]);
-			rational val = mat.det();
+			matrix<matType> mat = matrix<matType>::hankel(subwords[i]);
+			matType val = mat.det();
 			if(val == 0)
 			{
 				cout << "found zero det: t=" << t << ",n=" << n << endl;
@@ -82,6 +84,34 @@ int main(int argc, const char** argv)
 	}
 }
 
+void testLarge()
+{
+	int n = 300;
+	int min = 1;
+	int max = 10;
+	srand(time(NULL));
+	for(int nTest = 0; nTest < 2000; nTest++)
+	{
+		matrix<int> mat(n,n);
+		for(int i = 0; i < n; i++)
+		{
+			for(int j = 0; j < n; j++)
+			{
+				mat(i,j) = exp((rand() % (max - min)) + min);
+			}
+		}
+		cout << "here" << endl;
+		matType value = mat.det();
+		cout << value << endl;
+		/*matType a = mat(0,0);matType b = mat(0,1);matType c = mat(0,2);
+		matType d = mat(1,0);matType e = mat(1,1);matType f = mat(1,2);
+		matType g = mat(2,0);matType h = mat(2,1);matType i = mat(2,2);
+		matType expected = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
+		if(value != expected)
+			cout << "big trouble  " << value << "!=" << expected << endl;*/
+	}
+}
+
 void testDet()
 {
 	int n = 2;
@@ -90,7 +120,7 @@ void testDet()
 	srand(time(NULL));
 	for(int nTest = 0; nTest < 200; nTest++)
 	{
-		matrix<rational> mat(n,n);
+		matrix<matType> mat(n,n);
 		for(int i = 0; i < n; i++)
 		{
 			for(int j = 0; j < n; j++)
@@ -98,8 +128,8 @@ void testDet()
 				mat(i,j) = (rand() % (max - min)) + min;
 			}
 		}
-		rational value = mat.det();
-		rational expected = mat(0,0)*mat(1,1) - mat(1,0)*mat(0,1);
+		matType value = mat.det();
+		matType expected = mat(0,0)*mat(1,1) - mat(1,0)*mat(0,1);
 		if(value != expected)
 			cout << "big trouble" << endl;
 	}
@@ -111,6 +141,3 @@ void logCheckpoint(int t, string file)
 	ofs << t;
 	ofs.close();
 }
-
-
-
