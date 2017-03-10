@@ -2,6 +2,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <fstream>
 #include <map>
 
 using namespace std;
@@ -10,17 +11,46 @@ class morphism
 {
 protected:
 	vector<vector<int> > values;
-	int alphabetShift;
 public:
 	int expandFactor;
 	int alphabetMin;
 	int alphabetMax;
 
+	morphism(string file)
+	{
+		ifstream ifs(file);
+		if(!ifs.good())
+			throw runtime_error("file not found: " + file);
+		
+		ifs >> alphabetMin;
+		ifs >> alphabetMax;
+		ifs >> expandFactor;
+		int input;
+		while(!ifs.eof() && (ifs >> input))
+		{
+			if(values.size() < input-alphabetMin+1)
+				values.resize(input-alphabetMin+1);
+			
+			int temp;
+			while((ifs.peek() != '\n') && (ifs >> temp))
+				values[input-alphabetMin].push_back(temp);
+
+			//cout << input << " -> " << flush;
+			for(int i = 0; i < values[input-alphabetMin].size(); i++)
+			{
+				vector<int> tmp = values[input-alphabetMin];
+				//cout << tmp[i] << "\t" << flush;
+			}
+			//cout << endl;
+		}
+		//cout << values.size() << endl;
+	}
+
 	vector<int> expand(int term)
 	{
 		if (term < alphabetMin || term > alphabetMax)
 			throw std::runtime_error("term not in alphabet");
-		return values[term - alphabetShift];
+		return values[term - alphabetMin];
 	}
 	
 	vector<int> expand(vector<int> terms)
@@ -60,4 +90,18 @@ public:
 	}
 
 	virtual ~morphism() { }
+
+	void print()
+	{
+		for(int i = 0; i < values.size(); i++)
+		{
+			cout << (i + alphabetMin) << " -> ";
+			for(int j = 0; j < values[i].size(); j++)
+			{
+				cout << values[i][j] << "\t";
+			}
+			cout << endl;
+		}
+	}
+
 };

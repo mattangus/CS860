@@ -2,7 +2,7 @@
 
 firstMorph::firstMorph()
 {
-	alphabetMin = 1;
+	/*alphabetMin = 1;
 	alphabetMax = 5;
 	alphabetShift = 1;
 	expandFactor = 2;
@@ -26,7 +26,7 @@ firstMorph::firstMorph()
 	values.push_back(one);
 	values.push_back(two);
 	values.push_back(three);
-	values.push_back(four);
+	values.push_back(four);*/
 }
 
 firstMorph::~firstMorph()
