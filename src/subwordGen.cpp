@@ -9,7 +9,7 @@ subwordGen::subwordGen(morphism morph, int start) : morph(morph)
 		vector<int> sub;
 		for(int j = 0; j < 2; j++)
 			sub.push_back(seq[i+j]);
-		curExpansion[sub] = true;
+		baseExpansion[sub] = true;
 	}
 }
 
@@ -20,10 +20,10 @@ subwordGen::~subwordGen()
 
 vector<vector<int> > subwordGen::getSubwords(int n)
 {
-	map<vector<int>, bool> expansions = curExpansion;
-	while(expansions.begin()->first.size() <= n)
+	map<vector<int>, bool> expansions = baseExpansion;
+	while(expansions.begin()->first.size() <= 2*n)
 	{
-		expansions = morph.expandAll(expansions);
+		morph.expandAll(expansions);
 	}
 
 	map<vector<int>, bool> nextExpansion;
@@ -33,16 +33,14 @@ vector<vector<int> > subwordGen::getSubwords(int n)
 		vector<int> cur = it->first;
 		for(int start = 0; start <= cur.size() - n; start++)
 		{
-			vector<int> sub;
-			for(int j = 0; j < n; j++)
-				sub.push_back(cur[start + j]);
+			vector<int> sub(&cur[start],&cur[start+n]);
+			//cout << cur.size() << ": start " << start << " n " << n << " result " << sub.size() << endl;
 			nextExpansion[sub] = true;
 		}
 	}
-	curExpansion = nextExpansion;
 	vector<vector<int> > ret;
-	ret.reserve(curExpansion.size());
-	for(map<vector<int>, bool>::iterator it=curExpansion.begin(); it != curExpansion.end(); ++it)
+	ret.reserve(nextExpansion.size());
+	for(map<vector<int>, bool>::iterator it=nextExpansion.begin(); it != nextExpansion.end(); ++it)
 		ret.push_back(it->first);
 	return ret;
 }
@@ -64,5 +62,5 @@ void subwordGen::print(map<vector<int>, bool> &list)
 
 void subwordGen::print()
 {
-	print(curExpansion);
+	print(baseExpansion);
 }

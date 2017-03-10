@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 #include <map>
 
 using namespace std;
@@ -46,15 +47,16 @@ public:
 		return ret;
 	}
 
-	map<vector<int>, bool> expandAll(map<vector<int>, bool> &list)
+	void expandAll(map<vector<int>, bool> &list)
 	{
 		map<vector<int>, bool> ret;
 		for(map<vector<int>, bool>::iterator it=list.begin(); it != list.end(); ++it)
 		{
 			vector<int> expansion = expand(it->first);
+			//cout << "expanded size " << it->first.size() << " to " << expansion.size() << endl;
 			ret[expansion] = true;
 		}
-		return ret;
+		ret.swap(list);
 	}
 
 	virtual ~morphism() { }
