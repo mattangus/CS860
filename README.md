@@ -26,3 +26,10 @@ The open problem is described below (taken from [here](https://cs.uwaterloo.ca/~
 > |3 |	4  	 |  1221                                 |
 > |4 |	24   |	132132231231122331121332             |
 > |5 |	22   |	1424133432424131321224               |
+
+#Usage
+```
+cmake .
+make
+./cs860 --morphism morphFile --size 1000
+```
