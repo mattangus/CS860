@@ -10,7 +10,7 @@ private:
 	vector<int> seq;
 	void expand();
 public:
-	sequence(morphism &rule, int start);
+	sequence(morphism &rule);
 	~sequence();
 	int operator[](size_t i);
 	friend ostream& operator<<(ostream& os, const sequence& dt);

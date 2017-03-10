@@ -1,8 +1,8 @@
 #include "subwordGen.h"
 
-subwordGen::subwordGen(morphism morph, int start) : morph(morph)
+subwordGen::subwordGen(morphism morph) : morph(morph)
 {
-	sequence seq(morph,start);
+	sequence seq(morph);
 	//brute force base case for subwords length 2
 	for(int i = 0; i < (int)pow(morph.expandFactor,13); i++)
 	{

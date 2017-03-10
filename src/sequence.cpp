@@ -13,9 +13,9 @@ void sequence::expand()
 	seq.swap(newSeq);
 }
 
-sequence::sequence(morphism &rule, int start) : rule(rule)
+sequence::sequence(morphism &rule) : rule(rule)
 {
-	seq.push_back(start);
+	seq.push_back(rule.startVal);
 }
 
 sequence::~sequence()

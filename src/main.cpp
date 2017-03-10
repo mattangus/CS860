@@ -18,15 +18,10 @@ typedef boost::multiprecision::mpz_int matType;
 namespace po = boost::program_options;
 
 void logCheckpoint(int t, string file);
-void testDet();
-void testLarge();
 void checkDets(morphism m, int t);
 
 int main(int argc, const char** argv)
 {
-	//testDet();
-	//testLarge();
-	
 	string morphFile;
 	int t;
 	string checkpointFile;
@@ -66,7 +61,7 @@ int main(int argc, const char** argv)
 
 void checkDets(morphism m, int t)
 {
-	subwordGen sg(m,m.alphabetMin);
+	subwordGen sg(m);
 	cout << "starting" << endl;
 	int n = 2*t-1;
 	auto startSubword = chrono::high_resolution_clock::now();
@@ -99,76 +94,6 @@ void checkDets(morphism m, int t)
 	int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
 	cout << ((float)difMs/1000.0) << " s" << "\t(" << (((float)difMs/1000.0)/subwords.size()) << " s avg)" << endl;
 }
-
-void testLarge()
-{
-	/*firstMorph f;
-	sequence s(f,1);
-	vector<int> data;
-	for(int i = 0; i < 2*1000-1; i++)
-	{
-		data.push_back(s[i]);
-	}
-	cout << "got all data" << endl;
-	hmatrix<matType> mat(data);
-	cout << "starting det calc" << endl;
-	auto start = chrono::high_resolution_clock::now();
-	matType value = mat.det();
-	auto end = chrono::high_resolution_clock::now();
-	int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-	cout << value << endl;
-	cout << ((float)difMs/1000.0) << " s" << endl;*/
-	
-	/*int n = 4;
-	int min = 1;
-	int max = 10;
-	srand(time(NULL));
-	int arr[4][4] = {{1,2,2,3}, {2,2,3,1}, {2,3,1,4}, {3,1,4,2}}; //28
-	//int arr[4][4] = {{-2,-1,-1,-4}, {-1,-2,-1,-6}, {-1,-1,2,4}, {2,1,-3,-8}}; //-8
-	for(int nTest = 0; nTest < 1; nTest++)
-	{
-		hmatrix<int> mat(n,n);
-		for(int i = 0; i < n; i++)
-		{
-			for(int j = 0; j < n; j++)
-			{
-				mat(i,j) = arr[i][j];//exp((rand() % (max - min)) + min);
-			}
-		}
-		cout << "here" << endl;
-		int value = mat.det();
-		cout << value << endl;
-		/*matType a = mat(0,0);matType b = mat(0,1);matType c = mat(0,2);
-		matType d = mat(1,0);matType e = mat(1,1);matType f = mat(1,2);
-		matType g = mat(2,0);matType h = mat(2,1);matType i = mat(2,2);
-		matType expected = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
-		if(value != expected)
-			cout << "big trouble  " << value << "!=" << expected << endl;
-	}*/
-}
-
-/*void testDet()
-{
-	int n = 2;
-	int min = -100;
-	int max = 100;
-	srand(time(NULL));
-	for(int nTest = 0; nTest < 200; nTest++)
-	{
-		matrix<matType> mat(n,n);
-		for(int i = 0; i < n; i++)
-		{
-			for(int j = 0; j < n; j++)
-			{
-				mat(i,j) = (rand() % (max - min)) + min;
-			}
-		}
-		matType value = mat.det();
-		matType expected = mat(0,0)*mat(1,1) - mat(1,0)*mat(0,1);
-		if(value != expected)
-			cout << "big trouble" << endl;
-	}
-}*/
 
 void logCheckpoint(int t, string file)
 {

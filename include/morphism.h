@@ -12,9 +12,10 @@ class morphism
 protected:
 	vector<vector<int> > values;
 public:
-	int expandFactor;
+	int startVal;
 	int alphabetMin;
 	int alphabetMax;
+	int expandFactor = -1;
 
 	morphism(string file)
 	{
@@ -24,7 +25,7 @@ public:
 		
 		ifs >> alphabetMin;
 		ifs >> alphabetMax;
-		ifs >> expandFactor;
+		ifs >> startVal;
 		int input;
 		while(!ifs.eof() && (ifs >> input))
 		{
@@ -34,16 +35,9 @@ public:
 			int temp;
 			while((ifs.peek() != '\n') && (ifs >> temp))
 				values[input-alphabetMin].push_back(temp);
-
-			//cout << input << " -> " << flush;
-			for(int i = 0; i < values[input-alphabetMin].size(); i++)
-			{
-				vector<int> tmp = values[input-alphabetMin];
-				//cout << tmp[i] << "\t" << flush;
-			}
-			//cout << endl;
+			if(values[input-alphabetMin].size() > expandFactor)
+				expandFactor = values[input-alphabetMin].size();
 		}
-		//cout << values.size() << endl;
 	}
 
 	vector<int> expand(int term)
