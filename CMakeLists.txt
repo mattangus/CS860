@@ -18,7 +18,7 @@ include_directories(${cs860_SOURCE_DIR}/include)
 include_directories(${GMP_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(cs860 src/main.cpp src/firstMorph.cpp src/sequence.cpp src/subwordGen.cpp)
+add_executable(cs860 src/main.cpp src/sequence.cpp src/subwordGen.cpp)
 
 target_link_libraries(cs860 ${GMP_LIBRARIES} ${Boost_LIBRARIES})
 

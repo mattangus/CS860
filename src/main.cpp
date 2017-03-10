@@ -7,7 +7,6 @@
 #include <time.h>
 #include <chrono>
 #include "hmatrix.h"
-#include "firstMorph.h"
 #include "sequence.h"
 #include "subwordGen.h"
 #include "zeroDet.h"
