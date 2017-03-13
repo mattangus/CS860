@@ -4,7 +4,7 @@ subwordGen::subwordGen(morphism morph) : morph(morph)
 {
 	sequence seq(morph);
 	//brute force base case for subwords length 2
-	for(int i = 0; i < (int)pow(morph.expandFactor,13); i++)
+	for(int i = 0; i < 14*morph.expandFactor + 1000; i++)
 	{
 		vector<int> sub;
 		for(int j = 0; j < 2; j++)

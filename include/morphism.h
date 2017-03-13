@@ -19,6 +19,7 @@ public:
 
 	morphism(string file)
 	{
+		cout << file << endl;
 		ifstream ifs(file);
 		if(!ifs.good())
 			throw runtime_error("file not found: " + file);
@@ -35,7 +36,7 @@ public:
 			int temp;
 			while((ifs.peek() != '\n') && (ifs >> temp))
 				values[input-alphabetMin].push_back(temp);
-			if(values[input-alphabetMin].size() > expandFactor)
+			if(values[input-alphabetMin].size() < expandFactor)
 				expandFactor = values[input-alphabetMin].size();
 		}
 	}

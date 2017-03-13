@@ -49,7 +49,7 @@ int main(int argc, const char** argv)
 		cout << ex.what() << endl;
 		return 0;
 	}
-
+	cout << morphFile << endl;
 	morphism m(morphFile);
 	cout << "starting at t=" << t << endl;
 	cout << "morphism:" << endl;
@@ -59,40 +59,43 @@ int main(int argc, const char** argv)
 	cout << "done!" << endl << flush;
 }
 
-void checkDets(morphism m, int t)
+void checkDets(morphism m, int startT)
 {
 	subwordGen sg(m);
 	cout << "starting" << endl;
-	int n = 2*t-1;
-	auto startSubword = chrono::high_resolution_clock::now();
-	vector<vector<int> > subwords = sg.getSubwords(n);
-	auto endSubword = chrono::high_resolution_clock::now();
-	int genTime = chrono::duration_cast<chrono::milliseconds>(endSubword - startSubword).count();
-	cout << "t=" << t;
-	cout << ":\t#sub=" << subwords.size() << "\tgent=" << ((float)genTime/1000.0) << " s\t";
-	cout << flush;
-	auto start = chrono::high_resolution_clock::now();
-	#pragma omp parallel for
-	for(int i = 0; i < subwords.size(); i++)
+	for(int t = startT;;t*=2)
 	{
-		//matrix<matType> mat = matrix<matType>::hankel(subwords[i]);
-		//matType val = mat.det();
-		hmatrix<matType> mat(subwords[i]);
-		matType val;
-		try {		
-			val = mat.det();
-		} catch (zeroDet ex) {
-			cout << ex.what() << endl;
-			cout << "found zero det: t=" << t << ",n=" << n << endl;
-		}
-		if(val == 0)
+		int n = 2*t-1;
+		auto startSubword = chrono::high_resolution_clock::now();
+		vector<vector<int> > subwords = sg.getSubwords(n);
+		auto endSubword = chrono::high_resolution_clock::now();
+		int genTime = chrono::duration_cast<chrono::milliseconds>(endSubword - startSubword).count();
+		cout << "t=" << t;
+		cout << ":\t#sub=" << subwords.size() << "\tgent=" << ((float)genTime/1000.0) << " s\t";
+		cout << flush;
+		auto start = chrono::high_resolution_clock::now();
+		#pragma omp parallel for
+		for(int i = 0; i < subwords.size(); i++)
 		{
-			cout << "found zero det: t=" << t << ",n=" << n << endl;
+			//matrix<matType> mat = matrix<matType>::hankel(subwords[i]);
+			//matType val = mat.det();
+			hmatrix<matType> mat(subwords[i]);
+			matType val;
+			try {
+				val = mat.det();
+			} catch (zeroDet ex) {
+				cout << ex.what() << endl;
+				cout << "found zero det: t=" << t << ",n=" << n << endl;
+			}
+			if(val == 0)
+			{
+				cout << "found zero det: t=" << t << ",n=" << n << endl;
+			}
 		}
+		auto end = chrono::high_resolution_clock::now();
+		int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+		cout << ((float)difMs/1000.0) << " s" << "\t(" << (((float)difMs/1000.0)/subwords.size()) << " s avg)" << endl;
 	}
-	auto end = chrono::high_resolution_clock::now();
-	int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-	cout << ((float)difMs/1000.0) << " s" << "\t(" << (((float)difMs/1000.0)/subwords.size()) << " s avg)" << endl;
 }
 
 void logCheckpoint(int t, string file)

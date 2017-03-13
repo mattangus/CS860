@@ -1,3 +1,5 @@
+firstMorph
+firstMorph
 starting at t=1000
 morphism:
 1 -> 1	2	
@@ -6,4 +8,5 @@ morphism:
 4 -> 3	2	
 checkpoint file: 
 starting
-t=1000:	#sub=13986	gent=0.583 s	
+t=1000:	#sub=13986	gent=0.562 s	6159.8 s	(0.440426 s avg)
+t=2000:	#sub=27986	gent=1.796 s	
