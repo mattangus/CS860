@@ -1,72 +1,92 @@
 #include <iostream>
-#include <boost/rational.hpp>
+#include <boost/multiprecision/gmp.hpp>
+#include <boost/program_options.hpp>
 #include <string>
 #include <map>
 #include <fstream>
 #include <time.h>
 #include <chrono>
-#include "matrix.h"
-#include "firstMorph.h"
+#include "hmatrix.h"
 #include "sequence.h"
-#include "argparse.h"
 #include "subwordGen.h"
+#include "zeroDet.h"
 
 using namespace std;
 
-typedef boost::rational<int> rational;
+typedef boost::multiprecision::mpz_int matType;
+//typedef int matType;
+namespace po = boost::program_options;
 
 void logCheckpoint(int t, string file);
-void testDet();
+void checkDets(morphism m, int t);
 
 int main(int argc, const char** argv)
 {
-	//testDet();
+	string morphFile;
+	int t;
+	string checkpointFile;
+
+	po::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "print this message")
+		("morphism,m", po::value<string>(&morphFile)->required(), "path to morphism file")
+		("size,t", po::value<int>(&t)->required(), "size of hankel determinant to compute. subwords up to 2t-1 in length")
+		("checkpoint,c", po::value<string>(&checkpointFile), "checkpoint file NOT SUPPORTED")
+	;
 	
-	ArgumentParser parser;
-
-	parser.addArgument("-m",1);
-	parser.addArgument("-c",1);
-
-	parser.parse(argc,argv);
-
-	//todo replace with parsed args. keep getting bad cast exception
-	morphism m;
-	int morph = 1;
-	if(morph == 1)
-		m = firstMorph();
-	else if(morph == 2)
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	
+	if(vm.count("help"))
 	{
-		//todo: add second morphism
-		cout << "not implemented" << endl;
-		return 1;
+		cout << desc << endl;
+		return 0;
 	}
-	
-	string checkpoint = "checkpoint.txt";
-	
-	ifstream ifs(checkpoint);
-	int startT = 2;
-	if(ifs.good())
-	{
-		ifs >> startT;
-		startT++;
-		cout << "starting from " << startT << endl;
+
+	try {
+		po::notify(vm);
+	} catch (exception &ex) {
+		cout << ex.what() << endl;
+		return 0;
 	}
-	ifs.close();
+	cout << morphFile << endl;
+	morphism m(morphFile);
+	cout << "starting at t=" << t << endl;
+	cout << "morphism:" << endl;
+	m.print();
+	cout << "checkpoint file: " << checkpointFile << endl;
+	checkDets(m,t);
+	cout << "done!" << endl << flush;
+}
 
-	subwordGen sg(m,m.alphabetMin);
-
-	for(int t = startT; t < 1000; t++)
+void checkDets(morphism m, int startT)
+{
+	subwordGen sg(m);
+	cout << "starting" << endl;
+	for(int t = startT;;t*=2)
 	{
 		int n = 2*t-1;
 		auto startSubword = chrono::high_resolution_clock::now();
 		vector<vector<int> > subwords = sg.getSubwords(n);
 		auto endSubword = chrono::high_resolution_clock::now();
+		int genTime = chrono::duration_cast<chrono::milliseconds>(endSubword - startSubword).count();
+		cout << "t=" << t;
+		cout << ":\t#sub=" << subwords.size() << "\tgent=" << ((float)genTime/1000.0) << " s\t";
+		cout << flush;
 		auto start = chrono::high_resolution_clock::now();
 		#pragma omp parallel for
 		for(int i = 0; i < subwords.size(); i++)
 		{
-			matrix<rational> mat = matrix<rational>::hankel(subwords[i]);
-			rational val = mat.det();
+			//matrix<matType> mat = matrix<matType>::hankel(subwords[i]);
+			//matType val = mat.det();
+			hmatrix<matType> mat(subwords[i]);
+			matType val;
+			try {
+				val = mat.det();
+			} catch (zeroDet ex) {
+				cout << ex.what() << endl;
+				cout << "found zero det: t=" << t << ",n=" << n << endl;
+			}
 			if(val == 0)
 			{
 				cout << "found zero det: t=" << t << ",n=" << n << endl;
@@ -74,34 +94,7 @@ int main(int argc, const char** argv)
 		}
 		auto end = chrono::high_resolution_clock::now();
 		int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-		int genTime = chrono::duration_cast<chrono::milliseconds>(endSubword - startSubword).count();
-		cout << "t=" << t;
-		cout << ":\t#sub=" << subwords.size() << "\tgent=" << ((float)genTime/1000.0) << " s\t";
 		cout << ((float)difMs/1000.0) << " s" << "\t(" << (((float)difMs/1000.0)/subwords.size()) << " s avg)" << endl;
-		logCheckpoint(t,checkpoint);
-	}
-}
-
-void testDet()
-{
-	int n = 2;
-	int min = -100;
-	int max = 100;
-	srand(time(NULL));
-	for(int nTest = 0; nTest < 200; nTest++)
-	{
-		matrix<rational> mat(n,n);
-		for(int i = 0; i < n; i++)
-		{
-			for(int j = 0; j < n; j++)
-			{
-				mat(i,j) = (rand() % (max - min)) + min;
-			}
-		}
-		rational value = mat.det();
-		rational expected = mat(0,0)*mat(1,1) - mat(1,0)*mat(0,1);
-		if(value != expected)
-			cout << "big trouble" << endl;
 	}
 }
 
@@ -111,6 +104,3 @@ void logCheckpoint(int t, string file)
 	ofs << t;
 	ofs.close();
 }
-
-
-

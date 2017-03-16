@@ -10,12 +10,12 @@ void sequence::expand()
 		for (int j = 0; j < expansion.size(); j++)
 			newSeq.push_back(expansion[j]);
 	}
-	seq = newSeq;
+	seq.swap(newSeq);
 }
 
-sequence::sequence(morphism &rule, int start) : rule(rule)
+sequence::sequence(morphism &rule) : rule(rule)
 {
-	seq.push_back(start);
+	seq.push_back(rule.startVal);
 }
 
 sequence::~sequence()

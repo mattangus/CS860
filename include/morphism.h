@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <stdexcept>
+#include <iostream>
+#include <fstream>
 #include <map>
 
 using namespace std;
@@ -9,17 +11,41 @@ class morphism
 {
 protected:
 	vector<vector<int> > values;
-	int alphabetShift;
 public:
-	int expandFactor;
+	int startVal;
 	int alphabetMin;
 	int alphabetMax;
+	int expandFactor = -1;
+
+	morphism(string file)
+	{
+		cout << file << endl;
+		ifstream ifs(file);
+		if(!ifs.good())
+			throw runtime_error("file not found: " + file);
+		
+		ifs >> alphabetMin;
+		ifs >> alphabetMax;
+		ifs >> startVal;
+		int input;
+		while(!ifs.eof() && (ifs >> input))
+		{
+			if(values.size() < input-alphabetMin+1)
+				values.resize(input-alphabetMin+1);
+			
+			int temp;
+			while((ifs.peek() != '\n') && (ifs >> temp))
+				values[input-alphabetMin].push_back(temp);
+			if(values[input-alphabetMin].size() < expandFactor)
+				expandFactor = values[input-alphabetMin].size();
+		}
+	}
 
 	vector<int> expand(int term)
 	{
 		if (term < alphabetMin || term > alphabetMax)
 			throw std::runtime_error("term not in alphabet");
-		return values[term - alphabetShift];
+		return values[term - alphabetMin];
 	}
 	
 	vector<int> expand(vector<int> terms)
@@ -46,16 +72,31 @@ public:
 		return ret;
 	}
 
-	map<vector<int>, bool> expandAll(map<vector<int>, bool> &list)
+	void expandAll(map<vector<int>, bool> &list)
 	{
 		map<vector<int>, bool> ret;
 		for(map<vector<int>, bool>::iterator it=list.begin(); it != list.end(); ++it)
 		{
 			vector<int> expansion = expand(it->first);
+			//cout << "expanded size " << it->first.size() << " to " << expansion.size() << endl;
 			ret[expansion] = true;
 		}
-		return ret;
+		ret.swap(list);
 	}
 
 	virtual ~morphism() { }
+
+	void print()
+	{
+		for(int i = 0; i < values.size(); i++)
+		{
+			cout << (i + alphabetMin) << " -> ";
+			for(int j = 0; j < values[i].size(); j++)
+			{
+				cout << values[i][j] << "\t";
+			}
+			cout << endl;
+		}
+	}
+
 };

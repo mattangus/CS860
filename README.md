@@ -26,3 +26,19 @@ The open problem is described below (taken from [here](https://cs.uwaterloo.ca/~
 > |3 |	4  	 |  1221                                 |
 > |4 |	24   |	132132231231122331121332             |
 > |5 |	22   |	1424133432424131321224               |
+
+#Usage
+```
+cmake .
+make
+./cs860 --morphism morphFile --size 1000
+```
+The morphism file format is below. The file must have at least 2 lines. The alphabet used in the morphism must also be integers.
+```
+<alphabet_min> <alphabet_max> <start_value>
+<input_1> <output_11> <output_12> ...
+<input_2> <output_21> <output_22> ...
+...
+```
+###Warning
+<b>There is no validation on the input file.<b>
