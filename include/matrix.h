@@ -136,7 +136,7 @@ public:
 		int n = list.size();
 		int t = (n+1)/2;
 		if(2*t-1 != n)
-			throw std::runtime_error("can't create square hankel matrix. t=" + to_string(t) + " n=" + to_string(n));
+			throw std::runtime_error("can't create square hankel matrix.");
 		matrix<T> ret(t,t);
 		for(int i = 0; i < t; i++)
 		{
