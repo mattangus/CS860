@@ -27,7 +27,7 @@ The open problem is described below (taken from [here](https://cs.uwaterloo.ca/~
 > |4 |	24   |	132132231231122331121332             |
 > |5 |	22   |	1424133432424131321224               |
 
-#Usage
+# Usage
 ```
 cmake .
 make
@@ -40,5 +40,5 @@ The morphism file format is below. The file must have at least 2 lines. The alph
 <input_2> <output_21> <output_22> ...
 ...
 ```
-###Warning
+### Warning
 <b>There is no validation on the input file.<b>
