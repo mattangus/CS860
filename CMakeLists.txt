@@ -22,4 +22,7 @@ add_executable(cs860 src/main.cpp src/sequence.cpp src/subwordGen.cpp)
 
 target_link_libraries(cs860 ${GMP_LIBRARIES} ${Boost_LIBRARIES})
 
+#others
 add_definitions(-std=c++11)
+#sharcnet
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
