@@ -21,3 +21,26 @@ checkpoint file:
 starting
 t=2000:	#sub=27986	gent=3.768 s	146428 s	(5.23218 s avg)
 t=4000:	#sub=55986	gent=14.697 s	
+
+
+firstMorph
+firstMorph
+starting at t=4000
+morphism:
+1 -> 1	2	
+2 -> 2	3	
+3 -> 1	4	
+4 -> 3	2	
+checkpoint file: 
+starting
+t=4000:	#sub=9	gent=0.058 s	firstMorph
+firstMorph
+starting at t=4000
+morphism:
+1 -> 1	2	
+2 -> 2	3	
+3 -> 1	4	
+4 -> 3	2	
+checkpoint file: 
+starting
+t=4000:	#sub=9	gent=0.058 s	

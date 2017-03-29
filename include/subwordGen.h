@@ -15,5 +15,6 @@ public:
 	subwordGen(morphism morph);
 	~subwordGen();
 	vector<vector<int> > getSubwords(int n);
+	vector<vector<int> > getBaseExpansion(int n);
 	void print();
 };

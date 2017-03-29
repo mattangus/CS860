@@ -10,6 +10,7 @@
 #include "sequence.h"
 #include "subwordGen.h"
 #include "zeroDet.h"
+#include <omp.h>
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int main(int argc, const char** argv)
 	string morphFile;
 	int t;
 	string checkpointFile;
+	int threads = 0;
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
@@ -32,6 +34,7 @@ int main(int argc, const char** argv)
 		("morphism,m", po::value<string>(&morphFile)->required(), "path to morphism file")
 		("size,t", po::value<int>(&t)->required(), "size of hankel determinant to compute. subwords up to 2t-1 in length")
 		("checkpoint,c", po::value<string>(&checkpointFile), "checkpoint file NOT SUPPORTED")
+		("threads,h", po::value<int>(&threads), "number of threads to use (default is number of cores)")
 	;
 	
 	po::variables_map vm;
@@ -43,11 +46,17 @@ int main(int argc, const char** argv)
 		return 0;
 	}
 
+
+
 	try {
 		po::notify(vm);
 	} catch (exception &ex) {
 		cout << ex.what() << endl;
 		return 0;
+	}
+	if(threads != 0)
+	{
+		omp_set_num_threads(threads);
 	}
 	cout << morphFile << endl;
 	morphism m(morphFile);
@@ -63,11 +72,12 @@ void checkDets(morphism m, int startT)
 {
 	subwordGen sg(m);
 	cout << "starting" << endl;
-	for(int t = startT;;t*=2)
+	//int t = startT;
+	for(int t = startT;; t*=2)
 	{
 		int n = 2*t-1;
 		auto startSubword = chrono::high_resolution_clock::now();
-		vector<vector<int> > subwords = sg.getSubwords(n);
+		vector<vector<int> > subwords = sg.getBaseExpansion(n);
 		auto endSubword = chrono::high_resolution_clock::now();
 		int genTime = chrono::duration_cast<chrono::milliseconds>(endSubword - startSubword).count();
 		cout << "t=" << t;
@@ -79,16 +89,11 @@ void checkDets(morphism m, int startT)
 		{
 			//matrix<matType> mat = matrix<matType>::hankel(subwords[i]);
 			//matType val = mat.det();
-			hmatrix<matType> mat(subwords[i]);
-			matType val;
+			hmatrix<matType> mat(subwords[i], t);
 			try {
-				val = mat.det();
+				mat.checkDets();
 			} catch (zeroDet ex) {
 				cout << ex.what() << endl;
-				cout << "found zero det: t=" << t << ",n=" << n << endl;
-			}
-			if(val == 0)
-			{
 				cout << "found zero det: t=" << t << ",n=" << n << endl;
 			}
 		}
@@ -96,6 +101,7 @@ void checkDets(morphism m, int startT)
 		int difMs = chrono::duration_cast<chrono::milliseconds>(end - start).count();
 		cout << ((float)difMs/1000.0) << " s" << "\t(" << (((float)difMs/1000.0)/subwords.size()) << " s avg)" << endl;
 	}
+
 }
 
 void logCheckpoint(int t, string file)

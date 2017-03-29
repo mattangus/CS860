@@ -1,1 +1,1 @@
-nohup bin/cs860 -m firstMorph -t 2000 &>>out &
+nohup bin/cs860 -m firstMorph -t 4000 &>>out &

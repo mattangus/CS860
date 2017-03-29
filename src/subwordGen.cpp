@@ -40,7 +40,21 @@ vector<vector<int> > subwordGen::getSubwords(int n)
 	}
 	vector<vector<int> > ret;
 	ret.reserve(nextExpansion.size());
-	for(map<vector<int>, bool>::iterator it=nextExpansion.begin(); it != nextExpansion.end(); ++it)
+	for(auto it=nextExpansion.begin(); it != nextExpansion.end(); ++it)
+		ret.push_back(it->first);
+	return ret;
+}
+
+vector<vector<int> > subwordGen::getBaseExpansion(int n)
+{
+	map<vector<int>, bool> expansions = baseExpansion;
+	while(expansions.begin()->first.size() <= 2*n)
+	{
+		morph.expandAll(expansions);
+	}
+	vector<vector<int> > ret;
+	ret.reserve(expansions.size());
+	for(auto it=expansions.begin(); it != expansions.end(); ++it)
 		ret.push_back(it->first);
 	return ret;
 }
